@@ -27,18 +27,6 @@ public class Utilities {
         return (HomeActivity) context;
     }
 
-    public static void doCall(Context context, String number) {
-        Intent callIntent = new Intent(Intent.ACTION_CALL);
-        callIntent.setData(Uri.parse("tel:" + number));
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            String[] mPermission = {Manifest.permission.CALL_PHONE};
-            //TODO RequestResponse Implementation
-            ActivityCompat.requestPermissions(getApp(context), mPermission, Constants.RequestCodes.REQUEST_CODE);
-            return;
-        }
-        //context.startActivity(callIntent);
-    }
-
     public static DatabaseReference getDB(String child) {
         return FirebaseDatabase.getInstance().getReference().child(child);
     }

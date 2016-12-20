@@ -8,17 +8,22 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.styx.mobile.ride.R;
 import com.styx.mobile.ride.base.BaseActivity;
 import com.styx.mobile.ride.constants.UserAction;
 
 public class HomeActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, FirebaseAuth.AuthStateListener {
     Toolbar toolbar;
     ImageView iv_search;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,22 +42,23 @@ public class HomeActivity extends BaseActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nv_sidebar);
         navigationView.setNavigationItemSelectedListener(this);
 
-        doUserAction(UserAction.SIGN_IN_SCREEN, new Bundle());
+        mAuth = FirebaseAuth.getInstance();
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
+        mAuth.addAuthStateListener(this);
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
+        mAuth.removeAuthStateListener(this);
     }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         switch (item.getItemId()) {
             case R.id.nav_camera:
                 doUserAction(UserAction.HOME_SCREEN, new Bundle());
@@ -70,6 +76,18 @@ public class HomeActivity extends BaseActivity
             case R.id.iv_search:
                 doUserAction(UserAction.HOME_SCREEN, new Bundle());
                 break;
+        }
+    }
+
+    @Override
+    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if (user != null) {
+            doUserAction(UserAction.HOME_SCREEN, new Bundle());
+            Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+        } else {
+            doUserAction(UserAction.SIGN_IN_SCREEN, new Bundle());
+            Log.d(TAG, "onAuthStateChanged:signed_out");
         }
     }
 }
