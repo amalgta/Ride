@@ -3,6 +3,7 @@ package com.styx.mobile.ride.fragments.signin;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -11,6 +12,7 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -32,6 +34,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.styx.mobile.ride.R;
 import com.styx.mobile.ride.base.BaseFragment;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * Created by amal.george on 24-11-2016.
@@ -56,15 +60,19 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     protected void setUI(Bundle savedInstanceState) {
         presenter = new SignInPresenter(this);
         initiateGoogleLogin();
+        FacebookSdk.sdkInitialize(getApplicationContext());
 
         rootView.findViewById(R.id.sign_in_button).setOnClickListener(this);
 
-        // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
-        // [END initialize_auth]
 
         // [START auth_state_listener]
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -91,11 +99,13 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
         mCallbackManager = CallbackManager.Factory.create();
         LoginButton loginButton = (LoginButton) rootView.findViewById(R.id.button_facebook_login);
         loginButton.setReadPermissions("email", "public_profile");
+       loginButton.setFragment(this);
+
         loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                handleFacebookAccessToken(loginResult.getAccessToken());
+                firebaseAuthWithFacebook(loginResult.getAccessToken());
             }
 
             @Override
@@ -121,7 +131,6 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
-
     }
 
     @Override
@@ -153,12 +162,9 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void handleFacebookAccessToken(AccessToken token) {
+    private void firebaseAuthWithFacebook(AccessToken token) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);
-        // [START_EXCLUDE silent]
         getBase().showProgressDialog();
-        // [END_EXCLUDE]
-
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(getBase(), new OnCompleteListener<AuthResult>() {
@@ -174,14 +180,10 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
                             Toast.makeText(getBase(), "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
-
-                        // [START_EXCLUDE]
                         getBase().hideProgressDialog();
-                        // [END_EXCLUDE]
                     }
                 });
     }
-    // [END auth_with_facebook]
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
@@ -195,18 +197,12 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
-
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
                             Log.w(TAG, "signInWithCredential", task.getException());
                             Toast.makeText(getBase(), "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         }
-                        // [START_EXCLUDE]
                         getBase().hideProgressDialog();
-                        // [END_EXCLUDE]
                     }
                 });
     }
@@ -226,11 +222,7 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     }
 
     private void signOut() {
-        // Firebase sign out
         mAuth.signOut();
-
-        // Google sign out
-
     }
 
     private void initiateGoogleLogin() {
@@ -248,7 +240,10 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.sign_in_button:
-                signIn();
+                if (FirebaseAuth.getInstance().getCurrentUser() == null)
+                    signIn();
+                else
+                    signOut();
                 break;
         }
     }
