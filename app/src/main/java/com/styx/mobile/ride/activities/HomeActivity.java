@@ -1,6 +1,8 @@
 package com.styx.mobile.ride.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -9,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-
 import com.styx.mobile.ride.R;
 import com.styx.mobile.ride.base.BaseActivity;
 import com.styx.mobile.ride.constants.UserAction;
@@ -36,24 +37,25 @@ public class HomeActivity extends BaseActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nv_sidebar);
         navigationView.setNavigationItemSelectedListener(this);
 
-        doUserAction(UserAction.HOME_SCREEN, new Bundle());
-
-
+        doUserAction(UserAction.SIGN_IN_SCREEN, new Bundle());
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         switch (item.getItemId()) {
             case R.id.nav_camera:
                 doUserAction(UserAction.HOME_SCREEN, new Bundle());
-                break;
-            case R.id.nav_search:
-                doUserAction(UserAction.SEARCH_FRAGMENT, new Bundle());
-                break;
-            case R.id.nav_about:
-                doUserAction(UserAction.ABOUT_FRAGMENT, new Bundle());
                 break;
         }
 
@@ -66,7 +68,7 @@ public class HomeActivity extends BaseActivity
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.iv_search:
-                doUserAction(UserAction.SEARCH_FRAGMENT, new Bundle());
+                doUserAction(UserAction.HOME_SCREEN, new Bundle());
                 break;
         }
     }

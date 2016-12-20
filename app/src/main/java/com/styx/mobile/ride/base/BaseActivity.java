@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.styx.mobile.ride.R;
 import com.styx.mobile.ride.constants.UserAction;
 import com.styx.mobile.ride.fragments.home.HomeFragment;
+import com.styx.mobile.ride.fragments.signin.SignInFragment;
 import com.styx.mobile.ride.interfaces.UserActionListener;
 import com.styx.mobile.ride.utilities.Logger;
 
@@ -92,6 +93,17 @@ public class BaseActivity extends AppCompatActivity implements UserActionListene
                         mFragment = new HomeFragment();
                         mFragment.setArguments(mBundle);
                         addFragment(mLayout, mFragment, HomeFragment.TAG);
+                    }
+                    break;
+                case SIGN_IN_SCREEN:
+                    if (isFragmentExistsInBackStack(SignInFragment.TAG)) {
+                        if (getTopFragment() instanceof SignInFragment)
+                            return;
+                        popBackStack(SignInFragment.TAG, 0);
+                    } else {
+                        mFragment = new SignInFragment();
+                        mFragment.setArguments(mBundle);
+                        addFragment(mLayout, mFragment, SignInFragment.TAG);
                     }
                     break;
             }

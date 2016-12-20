@@ -13,7 +13,7 @@ import com.styx.mobile.ride.base.BaseFragment;
  */
 
 public class HomeFragment extends BaseFragment implements HomeContract.View {
-    public static final String TAG = "HomeFragment";
+    public static final String TAG = "SignInFragment";
     private HomeContract.Presenter presenter;
 
     @Override

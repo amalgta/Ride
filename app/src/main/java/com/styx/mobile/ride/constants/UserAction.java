@@ -6,9 +6,5 @@ package com.styx.mobile.ride.constants;
 
 public enum UserAction {
     HOME_SCREEN,
-    DONOR_LIST_FRAGMENT,
-    DONOR_DETAIL_FRAGMENT,
-    ABOUT_FRAGMENT,
-    ADD_DATA_FRAGMENT,
-    SEARCH_FRAGMENT
+    SIGN_IN_SCREEN
 }
