@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -37,6 +38,8 @@ import com.styx.mobile.ride.R;
 import com.styx.mobile.ride.base.BaseFragment;
 import com.styx.mobile.ride.ui.widget.FontTextView;
 
+import java.util.Arrays;
+
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
@@ -64,31 +67,14 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     protected void setUI(Bundle savedInstanceState) {
         presenter = new SignInPresenter(this);
         rootView.findViewById(R.id.sign_in_button).setOnClickListener(this);
-
+        rootView.findViewById(R.id.button_facebook_login).setOnClickListener(this);
         mAuth = FirebaseAuth.getInstance();
+        if(mAuth.getCurrentUser()!=null){
+            ((FontTextView)rootView.findViewById(R.id.tv_helloworld)).setText(mAuth.getCurrentUser().getDisplayName());
+        }else {
+            ((FontTextView)rootView.findViewById(R.id.tv_helloworld)).setText("Not Logged In");
 
-        mCallbackManager = CallbackManager.Factory.create();
-        LoginButton loginButton = (LoginButton) rootView.findViewById(R.id.button_facebook_login);
-        loginButton.setReadPermissions("email", "public_profile");
-        loginButton.setFragment(this);
-
-        loginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                firebaseAuthWithFacebook(loginResult.getAccessToken());
-            }
-
-            @Override
-            public void onCancel() {
-                Log.d(TAG, "facebook:onCancel");
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-                Log.d(TAG, "facebook:onError", error);
-            }
-        });
+        }
     }
 
     @Override
@@ -102,7 +88,8 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
             } else {
             }
         }
-        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+        if (mCallbackManager != null)
+            mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     private void firebaseAuthWithCredential(AuthCredential credential) {
@@ -148,12 +135,38 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
+    private void signInWithFacebook() {
+        com.facebook.login.LoginManager fbLoginManager = LoginManager.getInstance();
+        mCallbackManager = CallbackManager.Factory.create();
+
+        fbLoginManager.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(TAG, "facebook:onSuccess:" + loginResult);
+                firebaseAuthWithFacebook(loginResult.getAccessToken());
+            }
+
+            @Override
+            public void onCancel() {
+                Log.d(TAG, "facebook:onCancel");
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+                Log.d(TAG, "facebook:onError", error);
+            }
+        });
+        fbLoginManager.logInWithReadPermissions(this, Arrays.asList("user_friends", "email", "public_profile"));
+    }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.sign_in_button:
                 signInWithGoogle();
+                break;
+            case R.id.button_facebook_login:
+                signInWithFacebook();
                 break;
         }
     }
