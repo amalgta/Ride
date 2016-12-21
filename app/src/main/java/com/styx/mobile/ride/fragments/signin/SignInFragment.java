@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -49,12 +50,12 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 public class SignInFragment extends BaseFragment implements SignInContract.View, View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
     public static final String TAG = "SignInFragment";
     private SignInContract.Presenter presenter;
-
     private static final int RC_SIGN_IN = 9001;
-
     private FirebaseAuth mAuth;
-
     private CallbackManager mCallbackManager;
+
+    private EditText et_username, et_password;
+    private Button bt_login, bt_register, bt_login_google, bt_login_facebook;
 
     @Override
     protected void initUI() {
@@ -66,14 +67,21 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     @Override
     protected void setUI(Bundle savedInstanceState) {
         presenter = new SignInPresenter(this);
-        rootView.findViewById(R.id.sign_in_button).setOnClickListener(this);
-        rootView.findViewById(R.id.button_facebook_login).setOnClickListener(this);
-        mAuth = FirebaseAuth.getInstance();
-        if(mAuth.getCurrentUser()!=null){
-            ((FontTextView)rootView.findViewById(R.id.tv_helloworld)).setText(mAuth.getCurrentUser().getDisplayName());
-        }else {
-            ((FontTextView)rootView.findViewById(R.id.tv_helloworld)).setText("Not Logged In");
+        bt_login_google = (Button) rootView.findViewById(R.id.bt_login_google);
+        bt_login_facebook = (Button) rootView.findViewById(R.id.bt_login_facebook);
+        bt_login = (Button) rootView.findViewById(R.id.bt_login);
+        bt_register = (Button) rootView.findViewById(R.id.bt_register);
 
+        bt_login_google.setOnClickListener(this);
+        bt_register.setOnClickListener(this);
+        bt_login_facebook.setOnClickListener(this);
+        bt_login.setOnClickListener(this);
+
+        mAuth = FirebaseAuth.getInstance();
+        if (mAuth.getCurrentUser() != null) {
+            ((FontTextView) rootView.findViewById(R.id.tv_helloworld)).setText(mAuth.getCurrentUser().getDisplayName());
+        } else {
+            ((FontTextView) rootView.findViewById(R.id.tv_helloworld)).setText("Not Logged In");
         }
     }
 
