@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -51,11 +52,12 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     public static final String TAG = "SignInFragment";
     private SignInContract.Presenter presenter;
     private static final int RC_SIGN_IN = 9001;
+
     private FirebaseAuth mAuth;
     private CallbackManager mCallbackManager;
 
-    private EditText et_username, et_password;
-    private Button bt_login, bt_register, bt_login_google, bt_login_facebook;
+    private EditText editTextEmail, editTextPassword;
+    private Button buttonLoginEmail, buttonRegister, buttonLoginGoogle, buttonLoginFaceBook;
 
     @Override
     protected void initUI() {
@@ -67,15 +69,19 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     @Override
     protected void setUI(Bundle savedInstanceState) {
         presenter = new SignInPresenter(this);
-        bt_login_google = (Button) rootView.findViewById(R.id.bt_login_google);
-        bt_login_facebook = (Button) rootView.findViewById(R.id.bt_login_facebook);
-        bt_login = (Button) rootView.findViewById(R.id.bt_login);
-        bt_register = (Button) rootView.findViewById(R.id.bt_register);
 
-        bt_login_google.setOnClickListener(this);
-        bt_register.setOnClickListener(this);
-        bt_login_facebook.setOnClickListener(this);
-        bt_login.setOnClickListener(this);
+
+        editTextEmail = (EditText) rootView.findViewById(R.id.editTextEmail);
+        editTextPassword = (EditText) rootView.findViewById(R.id.editTextPassword);
+        buttonLoginGoogle = (Button) rootView.findViewById(R.id.buttonLoginGoogle);
+        buttonLoginEmail = (Button) rootView.findViewById(R.id.buttonLoginEmail);
+        buttonLoginFaceBook = (Button) rootView.findViewById(R.id.buttonLoginFaceBook);
+        buttonRegister = (Button) rootView.findViewById(R.id.buttonRegister);
+
+        buttonLoginEmail.setOnClickListener(this);
+        buttonRegister.setOnClickListener(this);
+        buttonLoginGoogle.setOnClickListener(this);
+        buttonLoginFaceBook.setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null) {
@@ -107,7 +113,7 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         getBase().hideProgressDialog();
                         if (task.isSuccessful()) {
-                            getBase().onAuthStateChanged(mAuth);
+                            onAuthSuccess(task.getResult().getUser());
                         } else {
                             Toast.makeText(getApplicationContext(), "Sign In Failed",
                                     Toast.LENGTH_SHORT).show();
@@ -167,14 +173,125 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
         fbLoginManager.logInWithReadPermissions(this, Arrays.asList("user_friends", "email", "public_profile"));
     }
 
+    private void onAuthSuccess(final FirebaseUser user) {
+        if (mAuth.getCurrentUser() != null) {
+            getBase().onAuthStateChanged(mAuth);
+            /**
+             getmDatabase().child("user").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override public void onDataChange(DataSnapshot snapshot) {
+            if (snapshot.exists()) {
+            } else {
+            writeNewUser(user);
+            }
+            startActivity(new Intent(getApplicationContext(), SplashScreenActivity.class));
+            finish();
+            }
+            @Override public void onCancelled(DatabaseError firebaseError) {
+            }
+            });
+             **/
+        }
+    }
+
+    private void writeNewUser(FirebaseUser mUser) {
+        /**
+         User mNewUser = new User(mUser.getUid(), Util.usernameFromEmail(mUser.getEmail()), mUser.getEmail());
+         UserInstance mCurrentInstance=new UserInstance(getmDatabase().child(USER+"/"+mNewUser.getuserID()+"/"+INSTANCE).push().getKey(),Util.getAppInstallUniqueID(getApplicationContext()),mNewUser);
+         //  mNewUser.addAppInstance();
+         //Home mNewHome = new Home(getmDatabase().child(HOME).push().getKey(), mUser.getDisplayName() + "'s Home");
+
+         // mNewUser.addHome(mNewHome.getHomeID(), User.HOME_STATUS.ACTIVE_HOME);
+         //mNewHome.setAccess(getmDatabase(), mNewUser.getuserID(), Home.USER_ACCESS_PRIVILLEGE.ADMIN);
+         **/
+    }
+
+    private void signUpWithEmail() {
+        if (!validateForm()) {
+            return;
+        }
+        getBase().showProgressDialog();
+        String email = editTextEmail.getText().toString();
+        String password = editTextPassword.getText().toString();
+
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        getBase().hideProgressDialog();
+                        if (task.isSuccessful()) {
+                            onAuthSuccess(task.getResult().getUser());
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Sign Up Failed",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    private void signInWithEmail() {
+        if (!validateForm()) {
+            return;
+        }
+        getBase().showProgressDialog();
+        String email = editTextEmail.getText().toString();
+        String password = editTextPassword.getText().toString();
+
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        getBase().hideProgressDialog();
+                        if (task.isSuccessful()) {
+                            onAuthSuccess(task.getResult().getUser());
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Sign In Failed",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    private boolean validateForm() {
+        boolean result = true;
+        if (TextUtils.isEmpty(editTextEmail.getText().toString())) {
+            editTextEmail.setError("Required");
+            result = false;
+
+        } else {
+            String regex = "^(.+)@(.+)$";
+            String test = editTextEmail.getText().toString();
+            if (!test.matches(regex)) {
+                editTextEmail.setError("Invalid Email");
+                result = false;
+            } else {
+                editTextEmail.setError(null);
+            }
+        }
+
+        if (TextUtils.isEmpty(editTextPassword.getText().toString())) {
+            editTextPassword.setError("Required");
+            result = false;
+        } else {
+            editTextPassword.setError(null);
+        }
+
+        return result;
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.sign_in_button:
+            case R.id.buttonLoginGoogle:
                 signInWithGoogle();
                 break;
-            case R.id.button_facebook_login:
+            case R.id.buttonLoginFaceBook:
                 signInWithFacebook();
+                break;
+            case R.id.buttonLoginEmail:
+                signInWithEmail();
+                break;
+            case R.id.buttonRegister:
+                signUpWithEmail();
                 break;
         }
     }

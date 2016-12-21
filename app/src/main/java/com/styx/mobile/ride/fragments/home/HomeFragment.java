@@ -31,7 +31,7 @@ public class HomeFragment extends BaseFragment implements HomeContract.View {
     protected void setUI(Bundle savedInstanceState) {
         presenter = new HomePresenter(this);
         FontTextView ftv = (FontTextView) rootView.findViewById(R.id.tv_helloworld);
-        ftv.setText(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        ftv.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
         ftv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

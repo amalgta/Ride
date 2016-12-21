@@ -29,7 +29,7 @@
             android:layout_height="wrap_content">
 
             <EditText
-                android:id="@+id/et_username"
+                android:id="@+id/editTextEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="User Name"
@@ -42,7 +42,7 @@
             android:layout_height="wrap_content">
 
             <EditText
-                android:id="@+id/et_password"
+                android:id="@+id/editTextPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Password"
@@ -56,14 +56,14 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/bt_register"
+                android:id="@+id/buttonRegister"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Register" />
 
             <Button
-                android:id="@+id/bt_login"
+                android:id="@+id/buttonLoginEmail"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -80,14 +80,14 @@
         android:orientation="vertical">
 
         <Button
-            android:id="@+id/bt_login_google"
+            android:id="@+id/buttonLoginGoogle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/padding_mini"
             android:text="Google" />
 
         <Button
-            android:id="@+id/bt_login_facebook"
+            android:id="@+id/buttonLoginFaceBook"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/padding_mini"
