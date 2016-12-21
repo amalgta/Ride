@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
+import android.widget.EditText;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -29,6 +30,14 @@ public class Utilities {
 
     public static DatabaseReference getDB(String child) {
         return FirebaseDatabase.getInstance().getReference().child(child);
+    }
+
+    public static String usernameFromEmail(String email) {
+        if (email.contains("@")) {
+            return email.split("@")[0];
+        } else {
+            return email;
+        }
     }
 
     public static int findAge(String dob) {
@@ -96,4 +105,5 @@ public class Utilities {
             return getGenericIntent("http://play.google.com/store/apps/details?id=" + context.getPackageName());
         }
     }
+
 }

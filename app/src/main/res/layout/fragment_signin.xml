@@ -5,18 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.styx.mobile.ride.ui.widget.FontTextView
-        android:id="@+id/tv_helloworld"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:padding="30dp"
-        android:textAlignment="center"
-        android:textColor="#ffffff"
-        android:textSize="@dimen/font_20"
-        app:font="@string/font_gothic_bold"
-        tools:text="Ride" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,8 +20,8 @@
                 android:id="@+id/editTextEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="User Name"
-                android:inputType="text" />
+                android:hint="Email"
+                android:inputType="textEmailAddress" />
 
         </android.support.design.widget.TextInputLayout>
 
@@ -93,4 +81,19 @@
             android:padding="@dimen/padding_mini"
             android:text="Facebook" />
     </LinearLayout>
+
+    <com.styx.mobile.ride.ui.widget.FontTextView
+        android:id="@+id/tv_helloworld"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:padding="30dp"
+        android:textAlignment="center"
+        android:textColor="#ffffff"
+        android:textSize="@dimen/font_20"
+        app:font="@string/font_gothic_bold"
+        tools:text="Ride"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>

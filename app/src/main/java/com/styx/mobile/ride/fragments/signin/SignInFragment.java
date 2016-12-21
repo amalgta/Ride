@@ -1,5 +1,6 @@
 package com.styx.mobile.ride.fragments.signin;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -39,6 +40,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.styx.mobile.ride.R;
 import com.styx.mobile.ride.base.BaseFragment;
 import com.styx.mobile.ride.ui.widget.FontTextView;
+import com.styx.mobile.ride.utilities.Utilities;
 
 import java.util.Arrays;
 
@@ -53,7 +55,8 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     private SignInContract.Presenter presenter;
     private static final int RC_SIGN_IN = 9001;
 
-    private FirebaseAuth mAuth;
+    private FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    GoogleApiClient mGoogleApiClient;
     private CallbackManager mCallbackManager;
 
     private EditText editTextEmail, editTextPassword;
@@ -70,7 +73,6 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     protected void setUI(Bundle savedInstanceState) {
         presenter = new SignInPresenter(this);
 
-
         editTextEmail = (EditText) rootView.findViewById(R.id.editTextEmail);
         editTextPassword = (EditText) rootView.findViewById(R.id.editTextPassword);
         buttonLoginGoogle = (Button) rootView.findViewById(R.id.buttonLoginGoogle);
@@ -82,13 +84,6 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
         buttonRegister.setOnClickListener(this);
         buttonLoginGoogle.setOnClickListener(this);
         buttonLoginFaceBook.setOnClickListener(this);
-
-        mAuth = FirebaseAuth.getInstance();
-        if (mAuth.getCurrentUser() != null) {
-            ((FontTextView) rootView.findViewById(R.id.tv_helloworld)).setText(mAuth.getCurrentUser().getDisplayName());
-        } else {
-            ((FontTextView) rootView.findViewById(R.id.tv_helloworld)).setText("Not Logged In");
-        }
     }
 
     @Override
@@ -100,14 +95,20 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
                 GoogleSignInAccount account = result.getSignInAccount();
                 firebaseAuthWithGoogle(account);
             } else {
+                onError(result.getStatus().toString());
             }
         }
         if (mCallbackManager != null)
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public void onError(String message) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
     private void firebaseAuthWithCredential(AuthCredential credential) {
-        mAuth.signInWithCredential(credential)
+        firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(getBase(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -115,10 +116,8 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
                         if (task.isSuccessful()) {
                             onAuthSuccess(task.getResult().getUser());
                         } else {
-                            Toast.makeText(getApplicationContext(), "Sign In Failed",
-                                    Toast.LENGTH_SHORT).show();
+                            onError(task.getException().toString());
                         }
-
                     }
                 });
     }
@@ -141,14 +140,19 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-        GoogleApiClient mGoogleApiClient = new GoogleApiClient.Builder(getContext())
+        mGoogleApiClient = new GoogleApiClient.Builder(getContext())
                 .enableAutoManage(getBase() /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mGoogleApiClient.stopAutoManage(getActivity());
+        mGoogleApiClient.disconnect();
+    }
     private void signInWithFacebook() {
         com.facebook.login.LoginManager fbLoginManager = LoginManager.getInstance();
         mCallbackManager = CallbackManager.Factory.create();
@@ -156,13 +160,11 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
         fbLoginManager.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d(TAG, "facebook:onSuccess:" + loginResult);
                 firebaseAuthWithFacebook(loginResult.getAccessToken());
             }
 
             @Override
             public void onCancel() {
-                Log.d(TAG, "facebook:onCancel");
             }
 
             @Override
@@ -174,35 +176,17 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     }
 
     private void onAuthSuccess(final FirebaseUser user) {
-        if (mAuth.getCurrentUser() != null) {
-            getBase().onAuthStateChanged(mAuth);
-            /**
-             getmDatabase().child("user").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override public void onDataChange(DataSnapshot snapshot) {
-            if (snapshot.exists()) {
-            } else {
-            writeNewUser(user);
+        presenter.checkIfUserExists(user, new SignInContract.OnUserExistResult() {
+            @Override
+            public void onUserExist() {
             }
-            startActivity(new Intent(getApplicationContext(), SplashScreenActivity.class));
-            finish();
-            }
-            @Override public void onCancelled(DatabaseError firebaseError) {
-            }
-            });
-             **/
-        }
-    }
 
-    private void writeNewUser(FirebaseUser mUser) {
-        /**
-         User mNewUser = new User(mUser.getUid(), Util.usernameFromEmail(mUser.getEmail()), mUser.getEmail());
-         UserInstance mCurrentInstance=new UserInstance(getmDatabase().child(USER+"/"+mNewUser.getuserID()+"/"+INSTANCE).push().getKey(),Util.getAppInstallUniqueID(getApplicationContext()),mNewUser);
-         //  mNewUser.addAppInstance();
-         //Home mNewHome = new Home(getmDatabase().child(HOME).push().getKey(), mUser.getDisplayName() + "'s Home");
-
-         // mNewUser.addHome(mNewHome.getHomeID(), User.HOME_STATUS.ACTIVE_HOME);
-         //mNewHome.setAccess(getmDatabase(), mNewUser.getuserID(), Home.USER_ACCESS_PRIVILLEGE.ADMIN);
-         **/
+            @Override
+            public void onUserNotExist() {
+                presenter.writeNewUser(user);
+            }
+        });
+        getBase().onAuthStateChanged(firebaseAuth);
     }
 
     private void signUpWithEmail() {
@@ -213,7 +197,7 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
         String email = editTextEmail.getText().toString();
         String password = editTextPassword.getText().toString();
 
-        mAuth.createUserWithEmailAndPassword(email, password)
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -236,7 +220,7 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
         String email = editTextEmail.getText().toString();
         String password = editTextPassword.getText().toString();
 
-        mAuth.signInWithEmailAndPassword(email, password)
+        firebaseAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -301,4 +285,6 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
         Toast.makeText(getBase(), "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
+
+
 }

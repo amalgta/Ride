@@ -5,7 +5,4 @@ package com.styx.mobile.ride.base;
  */
 
 public interface BasePresenter {
-
-    void request();
-
 }

@@ -6,14 +6,10 @@ package com.styx.mobile.ride.fragments.home;
  */
 
 class HomePresenter implements HomeContract.Presenter {
-    private HomeContract.View mView;
+    private HomeContract.View view;
 
-    HomePresenter(HomeContract.View mView) {
-        this.mView = mView;
+    HomePresenter(HomeContract.View view) {
+        this.view = view;
     }
 
-    @Override
-    public void request() {
-
-    }
 }

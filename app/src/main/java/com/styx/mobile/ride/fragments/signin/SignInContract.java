@@ -1,5 +1,6 @@
 package com.styx.mobile.ride.fragments.signin;
 
+import com.google.firebase.auth.FirebaseUser;
 import com.styx.mobile.ride.base.BasePresenter;
 
 /**
@@ -8,8 +9,16 @@ import com.styx.mobile.ride.base.BasePresenter;
 
 interface SignInContract {
     interface View {
+        void onError(String message);
     }
 
     interface Presenter extends BasePresenter {
+        void writeNewUser(FirebaseUser user);
+        void checkIfUserExists(FirebaseUser user,OnUserExistResult result);
+    }
+
+    interface OnUserExistResult {
+        void onUserExist();
+        void onUserNotExist();
     }
 }

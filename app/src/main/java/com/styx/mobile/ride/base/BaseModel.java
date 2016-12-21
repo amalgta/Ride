@@ -19,11 +19,4 @@ public class BaseModel {
     public void setObjectID(String objectID) {
         this.objectID = objectID;
     }
-
-    @Exclude
-    public Map<String, Object> toMap() {
-        HashMap<String, Object> result = new HashMap<>();
-        result.put("objectID", objectID);
-        return result;
-    }
 }

@@ -81,6 +81,7 @@ public class HomeActivity extends BaseActivity
 
     @Override
     public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+        Log.e(TAG, "onAuthStateChanged:" + firebaseAuth.toString());
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
             doUserAction(UserAction.HOME_SCREEN, new Bundle());
