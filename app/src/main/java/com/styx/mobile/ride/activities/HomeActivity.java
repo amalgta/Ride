@@ -11,7 +11,10 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.BaseAdapter;
+import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,6 +44,17 @@ public class HomeActivity extends BaseActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nv_sidebar);
         navigationView.setNavigationItemSelectedListener(this);
+        //TODO Fix
+        navigationView.getMenu().add("ssa");
+        for (int i = 0, count = navigationView.getChildCount(); i < count; i++) {
+            final View child = navigationView.getChildAt(i);
+            if (child != null && child instanceof ListView) {
+                final ListView menuView = (ListView) child;
+                final HeaderViewListAdapter adapter = (HeaderViewListAdapter) menuView.getAdapter();
+                final BaseAdapter wrapped = (BaseAdapter) adapter.getWrappedAdapter();
+                wrapped.notifyDataSetChanged();
+            }
+        }
 
         mAuth = FirebaseAuth.getInstance();
     }

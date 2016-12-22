@@ -16,5 +16,4 @@
         android:textColor="#ffffff"
         android:textSize="@dimen/font_20"
         app:font="@string/font_gothic_bold" />
-
 </RelativeLayout>

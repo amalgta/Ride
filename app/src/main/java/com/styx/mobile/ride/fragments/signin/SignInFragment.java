@@ -1,10 +1,8 @@
 package com.styx.mobile.ride.fragments.signin;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -16,18 +14,14 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -36,11 +30,8 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.FirebaseDatabase;
 import com.styx.mobile.ride.R;
 import com.styx.mobile.ride.base.BaseFragment;
-import com.styx.mobile.ride.ui.widget.FontTextView;
-import com.styx.mobile.ride.utilities.Utilities;
 
 import java.util.Arrays;
 
@@ -116,7 +107,7 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
                         if (task.isSuccessful()) {
                             onAuthSuccess(task.getResult().getUser());
                         } else {
-                            onError(task.getException().toString());
+                            onError("Error");
                         }
                     }
                 });
@@ -141,18 +132,20 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
                 .requestEmail()
                 .build();
         mGoogleApiClient = new GoogleApiClient.Builder(getContext())
-                .enableAutoManage(getBase() /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .enableAutoManage(getBase(), this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
         mGoogleApiClient.stopAutoManage(getActivity());
         mGoogleApiClient.disconnect();
     }
+
     private void signInWithFacebook() {
         com.facebook.login.LoginManager fbLoginManager = LoginManager.getInstance();
         mCallbackManager = CallbackManager.Factory.create();
