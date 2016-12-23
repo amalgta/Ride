@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -26,7 +27,8 @@ public class HomeActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener, FirebaseAuth.AuthStateListener {
     Toolbar toolbar;
     ImageView iv_search;
-    private FirebaseAuth mAuth;
+    private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    Button buttonLoginLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,19 +46,7 @@ public class HomeActivity extends BaseActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nv_sidebar);
         navigationView.setNavigationItemSelectedListener(this);
-        //TODO Fix
-        navigationView.getMenu().add("ssa");
-        for (int i = 0, count = navigationView.getChildCount(); i < count; i++) {
-            final View child = navigationView.getChildAt(i);
-            if (child != null && child instanceof ListView) {
-                final ListView menuView = (ListView) child;
-                final HeaderViewListAdapter adapter = (HeaderViewListAdapter) menuView.getAdapter();
-                final BaseAdapter wrapped = (BaseAdapter) adapter.getWrappedAdapter();
-                wrapped.notifyDataSetChanged();
-            }
-        }
-
-        mAuth = FirebaseAuth.getInstance();
+        buttonLoginLogout = (Button) findViewById(R.id.buttonLoginLogout);
     }
 
     @Override
@@ -98,9 +88,18 @@ public class HomeActivity extends BaseActivity
         Log.e(TAG, "onAuthStateChanged:" + firebaseAuth.toString());
         FirebaseUser user = firebaseAuth.getCurrentUser();
         if (user != null) {
+            buttonLoginLogout.setVisibility(View.VISIBLE);
+            buttonLoginLogout.setText("Logout" + mAuth.getCurrentUser().getDisplayName());
+            buttonLoginLogout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mAuth.signOut();
+                }
+            });
             doUserAction(UserAction.HOME_SCREEN, new Bundle());
             Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
         } else {
+            buttonLoginLogout.setVisibility(View.GONE);
             doUserAction(UserAction.SIGN_IN_SCREEN, new Bundle());
             Log.d(TAG, "onAuthStateChanged:signed_out");
         }
