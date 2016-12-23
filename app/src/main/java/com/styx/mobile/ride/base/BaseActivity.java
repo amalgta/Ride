@@ -12,6 +12,8 @@ import android.support.v7.app.AppCompatActivity;
 import com.styx.mobile.ride.R;
 import com.styx.mobile.ride.constants.UserAction;
 import com.styx.mobile.ride.fragments.home.HomeFragment;
+import com.styx.mobile.ride.fragments.hosttrip.HostTripFragment;
+import com.styx.mobile.ride.fragments.jointrip.JoinTripFragment;
 import com.styx.mobile.ride.fragments.signin.SignInFragment;
 import com.styx.mobile.ride.interfaces.UserActionListener;
 import com.styx.mobile.ride.utilities.Logger;
@@ -104,6 +106,28 @@ public class BaseActivity extends AppCompatActivity implements UserActionListene
                         mFragment = new SignInFragment();
                         mFragment.setArguments(mBundle);
                         addFragment(mLayout, mFragment, SignInFragment.TAG);
+                    }
+                    break;
+                case HOST_TRIP_SCREEN:
+                    if (isFragmentExistsInBackStack(HostTripFragment.TAG)) {
+                        if (getTopFragment() instanceof HostTripFragment)
+                            return;
+                        popBackStack(HostTripFragment.TAG, 0);
+                    } else {
+                        mFragment = new HostTripFragment();
+                        mFragment.setArguments(mBundle);
+                        addFragment(mLayout, mFragment, HostTripFragment.TAG);
+                    }
+                    break;
+                case JOIN_TRIP_SCREEN:
+                    if (isFragmentExistsInBackStack(JoinTripFragment.TAG)) {
+                        if (getTopFragment() instanceof JoinTripFragment)
+                            return;
+                        popBackStack(JoinTripFragment.TAG, 0);
+                    } else {
+                        mFragment = new JoinTripFragment();
+                        mFragment.setArguments(mBundle);
+                        addFragment(mLayout, mFragment, JoinTripFragment.TAG);
                     }
                     break;
             }

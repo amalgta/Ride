@@ -6,5 +6,7 @@ package com.styx.mobile.ride.constants;
 
 public enum UserAction {
     HOME_SCREEN,
-    SIGN_IN_SCREEN
+    SIGN_IN_SCREEN,
+    HOST_TRIP_SCREEN,
+    JOIN_TRIP_SCREEN
 }

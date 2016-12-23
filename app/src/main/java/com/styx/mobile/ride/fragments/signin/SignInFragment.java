@@ -142,8 +142,10 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mGoogleApiClient.stopAutoManage(getActivity());
-        mGoogleApiClient.disconnect();
+        if(mGoogleApiClient!=null) {
+            mGoogleApiClient.stopAutoManage(getActivity());
+            mGoogleApiClient.disconnect();
+        }
     }
 
     private void signInWithFacebook() {
@@ -169,6 +171,7 @@ public class SignInFragment extends BaseFragment implements SignInContract.View,
     }
 
     private void onAuthSuccess(final FirebaseUser user) {
+        Log.e("GTA","ASD");
         presenter.checkIfUserExists(user, new SignInContract.OnUserExistResult() {
             @Override
             public void onUserExist() {

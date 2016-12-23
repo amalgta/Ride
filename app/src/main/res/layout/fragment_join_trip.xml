@@ -18,15 +18,4 @@
         app:font="@string/font_gothic_bold"
         tools:text="Ride" />
 
-    <Button
-        android:id="@+id/buttonHostTrip"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Create" />
-
-    <Button
-        android:id="@+id/buttonJoinTrip"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Join" />
 </LinearLayout>
