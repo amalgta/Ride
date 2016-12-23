@@ -17,13 +17,11 @@ import com.styx.mobile.ride.ui.widget.FontTextView;
 public class HostTripFragment extends BaseFragment implements HostTripContract.View, View.OnClickListener {
     public static final String TAG = "HostTripFragment";
     private HostTripContract.Presenter presenter;
-    Button buttonHostTrip, buttonJoinTrip;
 
     @Override
     protected void initUI() {
-        setRoot(true);
         setScreenTitle("Donor Blood");
-        setScreenLayout(R.layout.fragment_home);
+        setScreenLayout(R.layout.fragment_host_trip);
     }
 
     @Override

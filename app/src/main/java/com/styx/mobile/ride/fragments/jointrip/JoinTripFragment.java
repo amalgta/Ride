@@ -20,9 +20,8 @@ public class JoinTripFragment extends BaseFragment implements JoinTripContract.V
 
     @Override
     protected void initUI() {
-        setRoot(true);
         setScreenTitle("Donor Blood");
-        setScreenLayout(R.layout.fragment_home);
+        setScreenLayout(R.layout.fragment_join_trip);
     }
 
     @Override
